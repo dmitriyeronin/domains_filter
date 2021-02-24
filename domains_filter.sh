@@ -8,8 +8,7 @@ cat /dev/null > output_domains.txt
 input_domains="$2"
 for domain in $(cat $input_domains)
 do
-	if (tcpdump -r $1 port 53 | grep " $domain\. ")  > /dev/null
-	then echo "$domain" >> output_domains.txt
-	fi
+	if [ -z "$domains" ]; then domains="dns.qry.name == $domain";
+	else domains="$domains || dns.qry.name == $domain"; fi
 done
-
+tshark -r output.pcap -Y "$domains" -T fields -e dns.qry.name | uniq
